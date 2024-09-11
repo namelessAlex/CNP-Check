@@ -1,3 +1,16 @@
 run main.py
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check
+      - uses: checkout@v2
 
-in
+      - name: setup python 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
