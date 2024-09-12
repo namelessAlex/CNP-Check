@@ -1,6 +1,11 @@
-import sys
+import sys # poti renunta la el, in locul lui, poti adauga o exceptie
+
+class InvalidCNPError(Exception):
+    pass
+
 class CNP:
-    def __init__(self, cnp):
+    #add a doc string 
+    def __init__(self, cnp): #nume mai clare pentru variabile 
         self.cnp = cnp
         self.cc = None
         self.gender = None  
@@ -8,19 +13,26 @@ class CNP:
         self.day = None
         self.jj = None
         self.first_char = None
+        #new empty line
     def check_length(self):
-        # Logica pentru validarea CNP-ului
+        # Logica pentru validarea CNP-ului -> in EN
+        #poti simplifica toata partea asta ca mai jos
         length_of_cnp = len(self.cnp)
         if length_of_cnp == 13:
             valid_leng = "length ok"
         else:
-            sys.exit(print(f'Length of CNP not ok: length of {length_of_cnp}') )   
-        
+            sys.exit(print(f'Length of CNP not ok: length of {length_of_cnp}') )  
         return 
-    # validare primul caracter din CNP pentru a obtine ccul si sexul persoanei
+
+        #varianta simplificata
+        if len(self.cnp) != 13:
+            raise InvalidCNPError(f'Length of CNP not ok: length of {len(self.cnp)}')
+    
+    # validare primul caracter din CNP pentru a obtine ccul si sexul persoanei -> in EN
     def check_sex(self):
         first_char = int(self.cnp[0])
         self.first_char = first_char
+        #de aici incolo as rescrie sub forma de mai jos si din ce stiu sunt cnpuri si cu 7,8,9, 
         first_char_list = [1,2,3,4,5,6]
         gender_list = ['masculin','feminin']
         if first_char in first_char_list:
@@ -31,38 +43,70 @@ class CNP:
                 return gender_list[1]
         else:
             sys.exit(print(f'def validare_sex error, first char not in range(1 thru 6): {first_char}') )    
-    def check_cc(self):
-        cc_list = ['18','19','20']
+
+        #varianta 
+        gender_list = ['masculin', 'feminin']
+        
+        if first_char in (1, 3, 5):
+            self.gender = gender_list[0]
+        elif first_char in (2, 4, 6):
+            self.gender = gender_list[1]
+        else:
+            raise InvalidCNPError(f'Invalid first character: {first_char}')
+        return self.gender
+    #new empty line
+    def check_cc(self): #ce e cc? nume mai clare pentru functii + comment pentru ce faci in functia asta 
+        cc_list = ['18','19','20'] #redenumeste mai clar cc
         if self.first_char in (1,2):
             self.cc = cc_list[self.first_char]
         elif self.first_char in (3,4):
             self.cc = cc_list[self.first_char]
         elif self.first_char in (5,6):
             self.cc = cc_list[self.first_char]   
-        # data nastere  
+        #adauga si else + variantele pentru 7,8,9 , 7,8 erau tot sexe... si 9 parca era pentru cetateni nerezidenti
+        else:
+            raise InvalidCNPError(f"Invalid first character for century calculation: {self.first_char}")
+            
+        # data nastere  - ce ai vrut sa spui aici?
     def get_cc(self):
         if self.cc:
             return self.cc
         else:
-            sys.exit(print(f'Century unknown: {self.cc}') )        
+            sys.exit(print(f'Century unknown: {self.cc}') )  #replace with    raise InvalidCNPError(f'Century unknown: {self.cc}')
+            #new empty line
     def get_yy(self):    
-        year = self.cnp[1] + self.cnp[2]
+        # in loc de cele 2 linii poti sa pui pur si simplu return self.cnp[1:3]
+        year = self.cnp[1] + self.cnp[2] 
         return year
+        #new empty line
     def get_mm(self):  
-        self.month = self.cnp[3] + self.cnp[4]
+        self.month = self.cnp[3] + self.cnp[4] # aici la fel, poti pune int(self.cnp[3:5])
         return self.month
+        #new empty line
     def get_dd(self):             
-        day = self.cnp[5] + self.cnp[6]
-        self.day = int(day)
-        if self.day in range(1,32):
+        day = self.cnp[5] + self.cnp[6] #la fel, int(self.cnp[5:7])
+        self.day = int(day) # o poti scoate
+        #tot codul de mai jos il poti rescrie astfel:
+        if self.day in range(1,32): 
             return day
         else:
             sys.exit(print(f'def get_dd error: {self.day}') )
-    def get_jj(self):
+        #varianta
+        if self.day not in range(1, 32):
+            raise InvalidCNPError(f'Invalid day: {self.day}')
+        return self.day
+        #new empty line
+    def get_jj(self): #nume mai clar la functie 
+        # o poti rescrie mai scurt 
         self.jj = self.cnp[7] + self.cnp[8]
         jj = int(self.jj)
         return jj
-    def check_month(self):
+        #varianta
+        self.jj = self.cnp[7:9]
+        return self.jj
+#new empty line
+    def check_month(self): # pentru toata chestia asta de mai jos , 
+        #poti sparge in 2 functii, una care verifica ce fel de an e si apoi cea de check_month, iti las mai jos variantele:
         month_list = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
@@ -85,6 +129,24 @@ class CNP:
                 sys.exit(print(f'def check month error, day not in range for month {month_nr}: {self.day}') )   
         else:
             sys.exit(print(f'def check month error, day not in range for month {month_nr}: {self.day}') )    
+
+        #varianta
+        def is_leap_year(self, year):
+                return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+        
+            def check_month(self):
+                month_days = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+                year = int(self.cc + self.get_yy())
+                
+                if self.month == 2 and self.is_leap_year(year):
+                    day_limit = 29
+                else:
+                    day_limit = month_days.get(self.month, 0)
+        
+                if self.day > day_limit:
+                    raise InvalidCNPError(f'Invalid day for month {self.month}: {self.day}')
+                return f"{self.month}"
+        
     def check_county(self):
         cnp_county_codes = {
     "01": "Alba", "02": "Arad", "03": "Argeș", "04": "Bacău", "05": "Bihor", "06": "Bistrița-Năsăud",
@@ -100,15 +162,22 @@ class CNP:
         if self.jj in cnp_county_codes:
             county = cnp_county_codes[self.jj]
             return county
+            #aici poti sa scrii direct  return cnp_county_codes[self.jj]
         else:
-            sys.exit(print(f'County code incorrect: {cnp_county_codes[self.jj]}'))
+            sys.exit(print(f'County code incorrect: {cnp_county_codes[self.jj]}')) # replace raise InvalidCNPError(f'Invalid county code: {self.jj}')
+            #new empty line
     def check_nnn(self):
         s = int(self.cnp[0])
         nnn = int(self.cnp[9:12])
+        #poti rescrie 
         if nnn < 1 or nnn > 999:
             sys.exit(print(f'NNN unknown: {nnn}') )              
         if (s in [1, 3, 5, 7] and nnn >= 500) or (s in [2, 4, 6, 8] and nnn < 500):
             sys.exit("Invalid NNN: Inconsistent with gender.")
+        #varianta
+        if not (1 <= nnn <= 999) or ((s in [1, 3, 5, 7] and nnn >= 500) or (s in [2, 4, 6, 8] and nnn < 500)):
+            raise InvalidCNPError(f"Invalid NNN: {nnn}, inconsistent with gender.")
+            #new empty line
     def check_control_digit(self):
 
     # Weights for the control digit calculation
@@ -123,10 +192,15 @@ class CNP:
     # Determine the expected control digit
         expected_control_digit = 1 if remainder == 10 else remainder
     # Compare with the provided control digit
+        #poti rescrie mai scurt 
         if control_digit == expected_control_digit:
             return 
         else:
             sys.exit(print(f'return digit invalid: {control_digit}') )    
+        #varianta
+        if control_digit != expected_control_digit:
+            raise InvalidCNPError(f'Invalid control digit: {control_digit}')
+            #new empty line
 class Persoana(CNP):
     def __init__(self, cnp, nume, prenume):
         super().__init__(cnp)
@@ -135,6 +209,7 @@ class Persoana(CNP):
     
     def afiseaza_informatii(self):
         return f"Nume: {self.nume}, Prenume: {self.prenume}, CNP: {self.cnp}"
+        #new empty line 
 class Angajat(Persoana):
     def __init__(self, cnp, nume, prenume, pozitie):
         super().__init__(cnp, nume, prenume)
